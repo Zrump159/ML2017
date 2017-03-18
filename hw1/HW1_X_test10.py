@@ -1,6 +1,6 @@
+import sys
 import csv
 import numpy as np
-import sys
 
 
 
@@ -28,7 +28,7 @@ def Gradient( point, Weight, P_Ans ) :
 i = 0
 data = [[]]*18
 T_data = [[]]*18
-trainset = [[[]*10]*18]*1000
+trainset = [[[]*10]*18]*600
 temp = [[]]*18
 
 
@@ -43,70 +43,46 @@ with open(sys.argv[1],encoding='Big5',newline = '') as csvfile :
 csvfile.close()
 data = np.array(data,dtype=np.float64)
 
-for i in range(1000) :
-    slice = [data[x][0+5*i:10+5*i] for x in range(18)]
+for i in range(600) :
+    slice = [data[x][0+7*i:10+7*i] for x in range(18)]
     trainset[i] = slice
 
 trainset = np.array(trainset,dtype=np.float64)
+
+#----------------------------------------------------------------------
+#update weight
+new_weight = [[0.0]*9]*18
+weight = np.zeros((18,9))
+new_weight = np.array(new_weight)
+i = 0
+with open('my_weight2.csv',newline = '') as csvfile :
+    reader = csv.reader(csvfile, delimiter= ',')
+    for row in reader :
+        new_weight[i] = row
+        i += 1
+csvfile.close()
+Weight = np.array(new_weight,np.float64)
+
 
 #----------------------------------------------------------------------------
 #linear regression
 
 #my feature [3] CO 2 [7]NOx 3 [8]O3 1 [9]PM10 5 [10]PM2.5 9 [12]RH 3 [14]THC 1
-my_feature = np.array([[0.0]*9]*18)
-my_feature[2][8] = 1.0
-my_feature[6][6:9] = 1.0
-my_feature[7][8] = 1.0
-my_feature[8][4:9] = 1.0
-my_feature[9][0:9] = 1.0
-my_feature[11][6:9] =1.0
-my_feature[13][8] = 1.0
+my_feature = [[1.0]*9]*18
+my_feature[14] = [0.0]*9
+my_feature[15] = [0.0]*9
+my_feature[16] = [0.0]*9
+my_feature[17] = [0.0]*9
+my_feature = np.array(my_feature)
 
-#0.02 0.5 20 5000 110
-#0.1 0.5 20 5000 56
-#0.05 0.5 20 5000 50
-#0.1 0.5 16 5000 47
-#0.05 0.5 16 5000 47.5
-#0.005 0.5 10 5000 36.5
-#0.005 0.5 14 5000 30
-#0.002 0.5 14 10000 29
-#0.5 0.5 14 4208 23.6
-#0.01 0.5 14 2148 24.5
-#0.1 0.5 14 4926 0.5 23.4
-#0.001 0.5 14 5000 0.25 15
-#0.005 0.5 10 5000 0.25 13.5
 
-Weight = np.array([[0.0]*9]*18)
-Weight[2][8] = 0.03461
-Weight[6][6] = -0.02383217
-Weight[6][7] = 0.029049
-Weight[6][8] = 0.13954667
-Weight[7][8] = 0.03626642
-Weight[8][4] = -0.014644
-Weight[8][5] = -0.0317656
-Weight[8][6] = 0.001204
-Weight[8][7] =-0.038192
-Weight[8][8] = 0.0682514
-Weight[9][0] = 0.039375
-Weight[9][1] = -0.06743533
-Weight[9][2] = 0.136419
-Weight[9][3] = -0.10733
-Weight[9][4] = -0.07999
-Weight[9][5] = 0.3273
-Weight[9][6] = -0.40363928
-Weight[9][7] =-0.05221217
-Weight[9][8] = 1.01638
-Weight[11][6] = 0.12653
-Weight[11][7] = -0.091377
-Weight[11][8] = -0.068541
-Weight[13][8] = 0.23027
 g_Weight = np.array([[0.0]*9]*18)
 wb=np.array([[0.0]*9]*18)
 Target_Error = 0.0
-Bias = -0.45068
+Bias = -21.033
 g_Bias = 0
 gb=0.0
-learning_rate = 0.005
+learning_rate = 0.01
 Ac_rate = 0.5
 Ac_restrict = 10.0
 Ans = 0.0
@@ -115,15 +91,15 @@ g_Bias_past = 0.0
 w_p = np.array([[1.0]*9]*18)
 WTF = np.array([[1.0]*9]*18)
 b_p = 1.0
-iteration = 4578
+iteration = 500
 Min_Error = 100.0
 Min_Error_position = 0
-filter_ratio = 0.25
+filter_ratio = 0.4
 
 for i in range(iteration) :
     Error = 0.0
     go = 0
-    for j in range(1000) :
+    for j in range(600) :
         P_Ans = Predict_Ans( trainset[j], Weight*my_feature, Bias )
         if abs(trainset[j][9][9] - P_Ans )/P_Ans > filter_ratio :
             go += 1
@@ -131,7 +107,7 @@ for i in range(iteration) :
         g_Weight += my_feature*Gradient( trainset[j], Weight*my_feature, P_Ans )
         g_Bias += -2.0*(trainset[j][9][9] - P_Ans)
         Error += (trainset[j][9][9] - P_Ans)**2
-    Error = Error/(1000-go)
+    Error = Error/(600-go)
     print("Error[",i,"]:",Error)
     if Error < Target_Error :
         break
@@ -164,8 +140,8 @@ for i in range(iteration) :
 
     g_Weight_ac = g_Weight*w_p
 
-    Weight = Weight - learning_rate/1000 * (1. / (wb ** 0.5)) * g_Weight_ac
-    Bias = Bias - learning_rate/1000 * (1. / (gb ** 0.5)) * g_Bias * b_p
+    Weight = Weight - learning_rate/600 * (1. / (wb ** 0.5)) * g_Weight_ac
+    Bias = Bias - learning_rate/600 * (1. / (gb ** 0.5)) * g_Bias * b_p
 
 print("Min_Error in [",Min_Error_position,"]:",Min_Error,'\nWeight\n',Weight,'\n',"Bias",Bias)
 

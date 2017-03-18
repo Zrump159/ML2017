@@ -1,1 +1,1 @@
-python3.5 HW1_regression.py $1 $2 $3
+python3.5 HW1_X_test10.py $1 $2 $3
