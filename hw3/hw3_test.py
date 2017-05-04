@@ -13,31 +13,12 @@ data = ['0']*28709
 Ans = [0]*28709
 train_data = [[0]*2304]*28709
 
-##//////////////////////////////////
-i = 0
-with open(sys.argv[1]) as csvfile :
-    reader = csv.reader(csvfile, delimiter= ',')
-    csvfile.readline()
-    for row in reader :
-        data[i] = row[1]
-        Ans[i] = row[0]
-        i += 1
-csvfile.close()
-
-for i in range(28709) :
-    train_data[i] = data[i].split()
-
-train_data = np.array(train_data,np.float)
-Ans = np.array(Ans,np.float)
-Ans = np_utils.to_categorical(Ans, 7)
-train_data = train_data.reshape((train_data.shape[0],48,48,1))
-train_data = train_data/255
 ##/////////////load test data///////////////////
 data = ['0']*7178
 test_data = [[0]*2304]*7178
 
 i = 0
-with open(sys.argv[2]) as csvfile :
+with open(sys.argv[1]) as csvfile :
     reader = csv.reader(csvfile, delimiter= ',')
     csvfile.readline()
     for row in reader :
@@ -63,7 +44,7 @@ out = [0]*7178
 
 out = result.argmax(axis=1)
 
-with open('CNNout.csv', 'w',newline='') as outfile :
+with open(sys.argv[2], 'w',newline='') as outfile :
     writer = csv.writer(outfile , delimiter=',')
     output = [['id','label']]
     writer.writerows(output)
