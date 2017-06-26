@@ -2,7 +2,8 @@ import math
 import pandas as pd
 from keras.layers import Dot, Embedding, Reshape, Input, Flatten, Add
 import keras
-import matplotlib.pyplot as plt
+import sys
+#import matplotlib.pyplot as plt
 from keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 import numpy as np
 import csv
@@ -10,7 +11,7 @@ from CFModel import CFModel,DeepModel,BiasModel
 import os
 
 MODEL_WEIGHTS_FILE = 'my_weight_a_215.h'
-Outfile = 'sys.argv[2]'
+Outfile = sys.argv[2]
 model_type = 'a'
 K_FACTORS = 215
 RNG_SEED = 1446557
@@ -64,7 +65,7 @@ else :
 
 
 temp_set=[[]]*100336
-with open('sys.argv[1]') as csvfileY:
+with open(sys.argv[1]) as csvfileY:
     readerY = csv.reader(csvfileY, delimiter= ',')
     next(readerY, None)
     temp_number_data = 0
